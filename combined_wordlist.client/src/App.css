@@ -9,3 +9,39 @@ th, td {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+.wordle-container {
+    text-align: center;
+    margin-top: 50px;
+    font-family: Arial, sans-serif;
+}
+
+.input-container {
+    margin: 20px;
+}
+
+input {
+    padding: 10px;
+    font-size: 18px;
+    width: 150px;
+    text-transform: uppercase;
+}
+
+button {
+    padding: 10px 15px;
+    font-size: 18px;
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+.history {
+    margin-top: 20px;
+}
+
+.reset-btn {
+    margin-top: 20px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+}

@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-
 namespace combined_wordlist.Server.Controllers;
 
 [ApiController]

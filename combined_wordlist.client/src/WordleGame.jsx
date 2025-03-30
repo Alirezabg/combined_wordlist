@@ -8,11 +8,19 @@ const WordleGame = () => {
     const [gameOver, setGameOver] = useState(false);
     const [computerSteps, setComputerSteps] = useState([]);
 
-
+    const getFeedbackClass = (feedbackChar) => {
+        switch (feedbackChar) {
+            case 'G': return 'green';
+            case 'Y': return 'yellow';
+            case 'B': return 'gray';
+            default: return '';
+        }
+    };
     const handleHelp = async () => {
         const result = await getHelp();
         if (result.message) {
-            console.log("no more valid")
+            setGameOver(true)
+            setHistory([...history, { guess:"Mmmmm ", feedback: "You Don't need more Hint" }]);
         }else if (result) {
             // Format the hint nicely
             const formattedHint = `Letter at position ${result.position + 1}: ${result.letter.toUpperCase()}`;
@@ -22,6 +30,7 @@ const WordleGame = () => {
     const handleSolve = async () => {
         const result = await solveGame();
         setComputerSteps(result.steps || []);
+        setGameOver(true)
     };
     const handleGuess = async () => {
         if (gameOver || !guess.trim()) return;
@@ -62,16 +71,24 @@ const WordleGame = () => {
 
             <div className="history">
                 {history.map((entry, index) => (
-                    <p key={index}>
-                        <strong>{entry.guess.toUpperCase()}:</strong> {entry.feedback}
-                    </p>
+                    <div key={index} className="guess-row">
+                        {entry.guess.split('').map((char, i) => (
+                            <span
+                                key={i}
+                                className={`letter-box ${getFeedbackClass(entry.feedback[i])}`}
+                            >
+                                {char.toUpperCase()}
+                            </span>
+                        ))}
+                    </div>
                 ))}
-                
             </div>
+
             
 
             {gameOver && <h2>Game Over! ??</h2>}
-            <button onClick={handleHelp}>Get Help</button>
+            <button
+                disabled={gameOver} onClick={handleHelp}>Get Help</button>
             {hint.map((entry, index) =>
                 (<p key={index}>{entry} </p>))}
             <button onClick={handleSolve}>Let's Computer Solve It</button>

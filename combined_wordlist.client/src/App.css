@@ -51,3 +51,31 @@ button {
     padding: 10px;
     border-top: 1px solid #ccc;
 }
+.letter-box {
+    display: inline-block;
+    width: 32px;
+    height: 32px;
+    margin: 2px;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 32px;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 20px;
+}
+
+.green {
+    background-color: #6aaa64;
+    color: white;
+}
+
+.yellow {
+    background-color: #c9b458;
+    color: white;
+}
+
+.gray {
+    background-color: #787c7e;
+    color: white;
+}

@@ -81,8 +81,8 @@ public class WordleController : ControllerBase
 
         if (unrevealed.Count == 0)
         {
-            char invalidResult = ' ';
-            return Ok(new { position = 0, invalidResult });
+            return Ok(new { message = "All letters have already been revealed!" });
+
         }
 
         // Pick random unrevealed letter
@@ -102,7 +102,6 @@ public class WordleController : ControllerBase
     {
         var originalGame = GetGame();
 
-        // Clone the game with same word, but fresh attempt count
         var solverGame = new WordleGame(originalGame.ValidWords)
         {
             WordToGuess = originalGame.WordToGuess
@@ -113,7 +112,7 @@ public class WordleController : ControllerBase
 
         while (!solverGame.IsGameOver())
         {
-            var guess = possibleWords.First(); // simple strategy: try first
+            var guess = possibleWords.First(); 
             var hint = solverGame.CheckGuess(guess);
 
             attempts.Add(new { guess, hint });

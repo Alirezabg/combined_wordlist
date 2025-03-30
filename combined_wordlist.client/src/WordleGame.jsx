@@ -1,11 +1,22 @@
 import React, { useState } from "react";
-import { makeGuess, resetGame } from "./api";
+import { makeGuess, resetGame, getHelp } from "./api";
 
 const WordleGame = () => {
     const [guess, setGuess] = useState("");
     const [history, setHistory] = useState([]);
+    const [hint, setHint] = useState([]);
     const [gameOver, setGameOver] = useState(false);
 
+    const handleHelp = async () => {
+        const result = await getHelp();
+        if (result.message) {
+            console.log("no more valid")
+        }else if (result) {
+            // Format the hint nicely
+            const formattedHint = `Letter at position ${result.position + 1}: ${result.letter.toUpperCase()}`;
+            setHint(prev => [...prev, formattedHint]);
+        }
+    }
     const handleGuess = async () => {
         if (gameOver || !guess.trim()) return;
 
@@ -24,6 +35,7 @@ const WordleGame = () => {
         setHistory([]);
         setGameOver(false);
         setGuess("");
+        setHint([])
     };
 
     return (
@@ -47,9 +59,14 @@ const WordleGame = () => {
                         <strong>{entry.guess.toUpperCase()}:</strong> {entry.feedback}
                     </p>
                 ))}
+                
             </div>
+            
 
             {gameOver && <h2>Game Over! ??</h2>}
+            <button onClick={handleHelp}>Get Help</button>
+            {hint.map((entry, index) =>
+                (<p key={index}>{entry} </p>))}
 
             <button onClick={handleReset} className="reset-btn">Reset Game</button>
         </div>

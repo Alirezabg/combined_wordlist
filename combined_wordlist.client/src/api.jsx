@@ -32,3 +32,13 @@ export const resetGame = async () => {
         console.error("Error resetting game:", error);
     }
 };
+export const getHelp = async () => {
+    try {
+        const response = await axios.get(`api/wordle/help`);
+        const data = await response.data;
+        return data;
+    } catch (error) {
+        console.error("Error getting help:", error);
+        return { response: "Error connecting to server." };
+    }
+}

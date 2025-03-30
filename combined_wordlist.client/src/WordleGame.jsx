@@ -1,11 +1,13 @@
 import React, { useState } from "react";
-import { makeGuess, resetGame, getHelp } from "./api";
+import { makeGuess, resetGame, getHelp, solveGame } from "./api";
 
 const WordleGame = () => {
     const [guess, setGuess] = useState("");
     const [history, setHistory] = useState([]);
     const [hint, setHint] = useState([]);
     const [gameOver, setGameOver] = useState(false);
+    const [computerSteps, setComputerSteps] = useState([]);
+
 
     const handleHelp = async () => {
         const result = await getHelp();
@@ -17,6 +19,10 @@ const WordleGame = () => {
             setHint(prev => [...prev, formattedHint]);
         }
     }
+    const handleSolve = async () => {
+        const result = await solveGame();
+        setComputerSteps(result.steps || []);
+    };
     const handleGuess = async () => {
         if (gameOver || !guess.trim()) return;
 
@@ -36,6 +42,7 @@ const WordleGame = () => {
         setGameOver(false);
         setGuess("");
         setHint([])
+        setComputerSteps([])
     };
 
     return (
@@ -67,7 +74,18 @@ const WordleGame = () => {
             <button onClick={handleHelp}>Get Help</button>
             {hint.map((entry, index) =>
                 (<p key={index}>{entry} </p>))}
+            <button onClick={handleSolve}>Let's Computer Solve It</button>
 
+            {computerSteps.length > 0 && (
+                <div className="computer-solver">
+                    <h3>Computer Solver Result:</h3>
+                    {computerSteps.map((step, index) => (
+                        <p key={index}>
+                            <strong>{step.guess.toUpperCase()}:</strong> {step.hint}
+                        </p>
+                    ))}
+                </div>
+            )}
             <button onClick={handleReset} className="reset-btn">Reset Game</button>
         </div>
     );

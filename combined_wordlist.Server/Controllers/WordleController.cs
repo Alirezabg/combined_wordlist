@@ -81,7 +81,8 @@ public class WordleController : ControllerBase
 
         if (unrevealed.Count == 0)
         {
-            return Ok(new { position = 0, "x" });
+            char invalidResult = ' ';
+            return Ok(new { position = 0, invalidResult });
         }
 
         // Pick random unrevealed letter
@@ -94,6 +95,54 @@ public class WordleController : ControllerBase
         HttpContext.Session.SetString(revealedKey, JsonSerializer.Serialize(revealedIndexes));
 
         return Ok(new { position = index, letter });
+    }
+
+    [HttpGet("solve")]
+    public IActionResult SolvePuzzle()
+    {
+        var originalGame = GetGame();
+
+        // Clone the game with same word, but fresh attempt count
+        var solverGame = new WordleGame(originalGame.ValidWords)
+        {
+            WordToGuess = originalGame.WordToGuess
+        };
+
+        var possibleWords = new List<string>(solverGame.ValidWords);
+        var attempts = new List<object>();
+
+        while (!solverGame.IsGameOver())
+        {
+            var guess = possibleWords.First(); // simple strategy: try first
+            var hint = solverGame.CheckGuess(guess);
+
+            attempts.Add(new { guess, hint });
+
+            if (hint == "Correct! You win!")
+                break;
+
+            // Filter possible words based on hint
+            possibleWords = possibleWords
+                .Where(word => MatchesHint(word, guess, hint))
+                .ToList();
+        }
+
+        return Ok(new
+        {
+            word = solverGame.WordToGuess,
+            totalAttempts = solverGame.Attempts,
+            steps = attempts
+        });
+    }
+    private bool MatchesHint(string word, string guess, string hint)
+    {
+        for (int i = 0; i < guess.Length; i++)
+        {
+            if (hint[i] == 'G' && word[i] != guess[i]) return false;
+            if (hint[i] == 'Y' && (word[i] == guess[i] || !word.Contains(guess[i]))) return false;
+            if (hint[i] == 'B' && word.Contains(guess[i])) return false;
+        }
+        return true;
     }
 
 }

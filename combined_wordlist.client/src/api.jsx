@@ -42,3 +42,13 @@ export const getHelp = async () => {
         return { response: "Error connecting to server." };
     }
 }
+export const solveGame = async () => {
+    try {
+        const response = await axios.get(`api/wordle/solve`);
+        return response.data;
+    } catch (error) {
+        console.error("Error solving game:", error);
+        return { steps: [], totalAttempts: 0, word: null };
+    }
+};
+

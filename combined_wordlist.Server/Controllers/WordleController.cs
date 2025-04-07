@@ -1,8 +1,5 @@
-﻿using combined_wordlist.Server.Models;
-using Microsoft.AspNetCore.Mvc;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
-
 [ApiController]
 [Route("api/wordle")]
 public class WordleController : ControllerBase
@@ -22,39 +19,7 @@ public class WordleController : ControllerBase
             ToList();
 
     }
-    private WordleGame GetGame()
-    {
-        var gameData = HttpContext.Session.GetString(SessionKey);
-        if (gameData != null)
-        {
-            var state = JsonSerializer.Deserialize<WordleGameState>(gameData)!;
-            var game = new WordleGame(LoadWords())
-            {
-                WordToGuess = state.WordToGuess,
-                Attempts = state.Attempts ?? 0
-            };
-            return game;
-        }
 
-
-        var newGame = new WordleGame(LoadWords());
-        SaveGame(newGame);
-        return newGame;
-    }
-
-    private void SaveGame(WordleGame game)
-    {
-        var state = new WordleGameState
-        {
-            WordToGuess = game.WordToGuess,
-            Attempts = game.Attempts
-        };
-
-
-       
-        var gameData = JsonSerializer.Serialize(state);
-        HttpContext.Session.SetString(SessionKey, gameData);
-    }
 
     [HttpPost("guess")]
     public IActionResult MakeGuess([FromBody] string guess)
@@ -63,6 +28,11 @@ public class WordleController : ControllerBase
         var response = game.CheckGuess(guess);
         SaveGame(game);
         return Ok(new { response, gameOver = game.IsGameOver() });
+    }
+
+    private object GetGame()
+    {
+        throw new NotImplementedException();
     }
 
     [HttpGet("reset")]
@@ -136,7 +106,6 @@ public class WordleController : ControllerBase
             if (hint == "Correct! You win!")
                 break;
 
-            // Filter possible words based on hint
             possibleWords = possibleWords
                 .Where(word => MatchesHint(word, guess, hint))
                 .ToList();

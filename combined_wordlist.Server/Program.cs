@@ -1,4 +1,6 @@
 
+using combined_wordlist.Server.Services;
+
 namespace combined_wordlist.Server
 {
     public class Program
@@ -11,6 +13,8 @@ namespace combined_wordlist.Server
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddDistributedMemoryCache();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<WordleService>();
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);

@@ -39,6 +39,7 @@
             if (guess[i] == WordToGuess[i])
                 result[i] = 'G';
             else if (WordToGuess.Contains(guess[i]))
+
                 result[i] = 'Y';
             else
                 result[i] = 'B';

@@ -1,13 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using combined_wordlist.Server.Services;
+using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 [ApiController]
 [Route("api/wordle")]
 public class WordleController : ControllerBase
 {
     private const string SessionKey = "WordleGame";
-    public WordleController()
+    private readonly WordleService _wordleService;
+
+    public WordleController(WordleService wordleService)
     {
+        _wordleService = wordleService;
     }
+
     private static List<string> LoadWords()
     {
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "words.txt");
@@ -24,35 +29,29 @@ public class WordleController : ControllerBase
     [HttpPost("guess")]
     public IActionResult MakeGuess([FromBody] string guess)
     {
-        var game = GetGame();
+        var game = _wordleService.GetGame(HttpContext);
         var response = game.CheckGuess(guess);
-        SaveGame(game);
         return Ok(new { response, gameOver = game.IsGameOver() });
     }
 
-    private object GetGame()
-    {
-        throw new NotImplementedException();
-    }
+
+
 
     [HttpGet("reset")]
     public IActionResult ResetGame()
     {
-        var newGame = new WordleGame(LoadWords());
-        SaveGame(newGame);
+        _wordleService.ResetGame();
         HttpContext.Session.Remove("RevealedLetters");
-
         return Ok("Game reset successfully!");
     }
 
     [HttpGet("help")]
     public IActionResult RevealLetter()
     {
-        var game = GetGame();
+        var game = _wordleService.GetGame(HttpContext);
         var word = game.WordToGuess;
         const string revealedKey = "RevealedLetters";
 
-        // Load revealed indexes from session
         List<int> revealedIndexes = new();
         var revealedData = HttpContext.Session.GetString(revealedKey);
         if (!string.IsNullOrEmpty(revealedData))
@@ -60,7 +59,6 @@ public class WordleController : ControllerBase
             revealedIndexes = JsonSerializer.Deserialize<List<int>>(revealedData)!;
         }
 
-        // Get unrevealed positions
         var unrevealed = Enumerable.Range(0, word.Length)
             .Where(i => !revealedIndexes.Contains(i))
             .ToList();
@@ -68,15 +66,12 @@ public class WordleController : ControllerBase
         if (unrevealed.Count == 0)
         {
             return Ok(new { message = "All letters have already been revealed!" });
-
         }
 
-        // Pick random unrevealed letter
         var random = new Random();
-        int index = unrevealed[random.Next(unrevealed.Count)];
+        int index = random.Next(unrevealed.Count);
         char letter = word[index];
 
-        // Save revealed index
         revealedIndexes.Add(index);
         HttpContext.Session.SetString(revealedKey, JsonSerializer.Serialize(revealedIndexes));
 
@@ -86,7 +81,7 @@ public class WordleController : ControllerBase
     [HttpGet("solve")]
     public IActionResult SolvePuzzle()
     {
-        var originalGame = GetGame();
+        var originalGame = _wordleService.GetGame(HttpContext);
 
         var solverGame = new WordleGame(originalGame.ValidWords)
         {
@@ -98,7 +93,7 @@ public class WordleController : ControllerBase
 
         while (!solverGame.IsGameOver())
         {
-            var guess = possibleWords.First(); 
+            var guess = possibleWords.First();
             var hint = solverGame.CheckGuess(guess);
 
             attempts.Add(new { guess, hint });

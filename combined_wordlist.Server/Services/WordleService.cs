@@ -1,4 +1,6 @@
 ﻿using combined_wordlist.Server.Models;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
 
 
@@ -8,11 +10,13 @@ namespace combined_wordlist.Server.Services
     public class WordleService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private const string Sesstionkey ="wordleGame";
+        private readonly IMemoryCache _cache;
+        private static List<string>? _wordsCache;
 
-        public WordleService(IHttpContextAccessor httpContextAccessor)
+        public WordleService(IHttpContextAccessor httpContextAccessor, IMemoryCache cache)
         {
             _httpContextAccessor = httpContextAccessor;
+            _cache = cache;
         }
         public List<string> LoadWords()
         {
@@ -23,34 +27,29 @@ namespace combined_wordlist.Server.Services
                 .Distinct()
                 .ToList();
         }
-        public WordleGame GetGame()
+        public WordleGame GetGame(HttpContext context)
         {
-            var gameData = _httpContextAccessor.HttpContext.Session.GetString(Sesstionkey);
-            if (gameData != null)
+            context.Session.SetString("init", "1");
+
+            var sessionId = context.Session.Id;
+            var cacheKey = $"game-{sessionId}";
+
+            if (!_cache.TryGetValue(cacheKey, out WordleGame game))
             {
-                var state = JsonSerializer.Deserialize<WordleGameState>(gameData)!;
-                var game = new WordleGame(LoadWords())
-                {
-                    WordToGuess = state.WordToGuess,
-                    Attempts = state.Attempts ?? 0
-                };
-                return game;
+                game = new WordleGame(LoadWords());
+                _cache.Set(cacheKey, game);
             }
+            return game;
+        }
+        public void ResetGame()
+        {
+            var context = _httpContextAccessor.HttpContext!;
+            var sessionId = context.Session.Id;
+            var cacheKey = $"game-{sessionId}";
             var newGame = new WordleGame(LoadWords());
-            SaveGame(newGame);
-            return newGame;
+            _cache.Set(cacheKey, newGame);
         }
 
-        public void SaveGame(WordleGame game)
-        {
-            var state = new WordleGameState
-            {
-                WordToGuess = game.WordToGuess,
-                Attempts = game.Attempts
-            };
-            var gameData = JsonSerializer.Serialize(state);
-            _httpContextAccessor.HttpContext.Session.SetString(Sesstionkey, gameData);
-        }
 
     }
 }

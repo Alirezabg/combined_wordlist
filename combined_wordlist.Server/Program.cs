@@ -15,6 +15,7 @@ namespace combined_wordlist.Server
             builder.Services.AddDistributedMemoryCache();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<WordleService>();
+            builder.Services.AddMemoryCache();
             builder.Services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(30);

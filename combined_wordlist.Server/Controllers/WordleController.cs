@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using combined_wordlist.Server.Models;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Text.Json;
 
@@ -26,17 +27,32 @@ public class WordleController : ControllerBase
         var gameData = HttpContext.Session.GetString(SessionKey);
         if (gameData != null)
         {
-            return JsonSerializer.Deserialize<WordleGame>(gameData)!;
+            var state = JsonSerializer.Deserialize<WordleGameState>(gameData)!;
+            var game = new WordleGame(LoadWords())
+            {
+                WordToGuess = state.WordToGuess,
+                Attempts = state.Attempts ?? 0
+            };
+            return game;
         }
 
-        var newGame = new WordleGame( LoadWords());
+
+        var newGame = new WordleGame(LoadWords());
         SaveGame(newGame);
         return newGame;
     }
 
     private void SaveGame(WordleGame game)
     {
-        var gameData = JsonSerializer.Serialize(game);
+        var state = new WordleGameState
+        {
+            WordToGuess = game.WordToGuess,
+            Attempts = game.Attempts
+        };
+
+
+       
+        var gameData = JsonSerializer.Serialize(state);
         HttpContext.Session.SetString(SessionKey, gameData);
     }
 

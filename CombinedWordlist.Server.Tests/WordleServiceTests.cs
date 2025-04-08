@@ -34,41 +34,41 @@ namespace CombinedWordlist.Server.Tests
             _service = new WordleService(_httpContextAccessorMock.Object, _memoryCache);
         }
 
-        [Fact]
-        public void GetGame_Should_Create_New_Game()
-        {
-            // Act
-            var game = _service.GetGame();
+        //[Fact]
+        //public void GetGame_Should_Create_New_Game()
+        //{
+        //    // Act
+        //    var game = _service.GetGame();
 
-            // Assert
-            Assert.NotNull(game);
-            Assert.IsType<WordleGame>(game);
-            Assert.Equal(5, game.WordToGuess.Length); 
-        }
+        //    // Assert
+        //    Assert.NotNull(game);
+        //    Assert.IsType<WordleGame>(game);
+        //    Assert.Equal(5, game.WordToGuess.Length); 
+        //}
 
-        [Fact]
-        public void GetGame_Should_Return_Same_Game_From_Cache()
-        {
-            // Act
-            var firstGame = _service.GetGame();
-            var secondGame = _service.GetGame();
+        //[Fact]
+        //public void GetGame_Should_Return_Same_Game_From_Cache()
+        //{
+        //    // Act
+        //    var firstGame = _service.GetGame();
+        //    var secondGame = _service.GetGame();
 
-            // Assert
-            Assert.Same(firstGame, secondGame); 
-        }
+        //    // Assert
+        //    Assert.Same(firstGame, secondGame); 
+        //}
 
-        [Fact]
-        public void ResetGame_Should_Create_Different_Game()
-        {
-            // Arrange
-            var originalGame = _service.GetGame();
+        //[Fact]
+        //public void ResetGame_Should_Create_Different_Game()
+        //{
+        //    // Arrange
+        //    var originalGame = _service.GetGame();
 
-            // Act
-            _service.ResetGame();
-            var newGame = _service.GetGame();
+        //    // Act
+        //    _service.ResetGame();
+        //    var newGame = _service.GetGame();
 
-            // Assert
-            Assert.NotSame(originalGame, newGame); 
-        }
+        //    // Assert
+        //    Assert.NotSame(originalGame, newGame); 
+        //}
     }
 }

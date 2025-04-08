@@ -17,11 +17,11 @@
 
     public string CheckGuess(string guess)
     {
+        if (guess.Length != WordToGuess.Length)
+            return "Incorrect word length!";
         if (!ValidWords.Contains(guess))
             return "Invalid word!";
 
-        if (guess.Length != WordToGuess.Length)
-            return "Incorrect word length!";
 
         Attempts++;
 

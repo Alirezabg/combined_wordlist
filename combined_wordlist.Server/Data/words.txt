@@ -5763,7 +5763,6 @@ fling
 skied
 donny
 spelt
-allee
 pekin
 kutas
 sozin
@@ -7455,6 +7454,7 @@ raphe
 mirin
 choom
 solon
+allee
 madly
 byres
 resaw

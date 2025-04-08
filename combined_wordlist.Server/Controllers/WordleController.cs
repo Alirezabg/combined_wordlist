@@ -29,7 +29,7 @@ public class WordleController : ControllerBase
     [HttpPost("guess")]
     public IActionResult MakeGuess([FromBody] string guess)
     {
-        var game = _wordleService.GetGame(HttpContext);
+        var game = _wordleService.GetGame();
         var response = game.CheckGuess(guess);
         return Ok(new { response, gameOver = game.IsGameOver() });
     }
@@ -48,7 +48,7 @@ public class WordleController : ControllerBase
     [HttpGet("help")]
     public IActionResult RevealLetter()
     {
-        var game = _wordleService.GetGame(HttpContext);
+        var game = _wordleService.GetGame();
         var word = game.WordToGuess;
         const string revealedKey = "RevealedLetters";
 
@@ -81,7 +81,7 @@ public class WordleController : ControllerBase
     [HttpGet("solve")]
     public IActionResult SolvePuzzle()
     {
-        var originalGame = _wordleService.GetGame(HttpContext);
+        var originalGame = _wordleService.GetGame();
 
         var solverGame = new WordleGame(originalGame.ValidWords)
         {

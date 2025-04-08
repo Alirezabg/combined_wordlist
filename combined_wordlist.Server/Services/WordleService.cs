@@ -1,9 +1,6 @@
 ﻿using combined_wordlist.Server.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Memory;
-using System.Text.Json;
-
-
 
 namespace combined_wordlist.Server.Services
 {
@@ -18,18 +15,25 @@ namespace combined_wordlist.Server.Services
             _httpContextAccessor = httpContextAccessor;
             _cache = cache;
         }
+
         public List<string> LoadWords()
         {
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "words.txt");
-            return System.IO.File.ReadAllLines(filePath)
-                .Where(word => word.Length == 5)
-                .Select(word => word.ToLower())
-                .Distinct()
-                .ToList();
+            if (_wordsCache == null)
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "words.txt");
+                _wordsCache = System.IO.File.ReadAllLines(filePath)
+                    .Where(word => word.Length == 5)
+                    .Select(word => word.ToLower())
+                    .Distinct()
+                    .ToList();
+            }
+            return _wordsCache;
         }
-        public WordleGame GetGame(HttpContext context)
+
+        public WordleGame GetGame()
         {
-            context.Session.SetString("init", "1");
+            var context = _httpContextAccessor.HttpContext!;
+            context.Session.SetString("init", "1"); // Stabilize SessionId
 
             var sessionId = context.Session.Id;
             var cacheKey = $"game-{sessionId}";
@@ -39,17 +43,18 @@ namespace combined_wordlist.Server.Services
                 game = new WordleGame(LoadWords());
                 _cache.Set(cacheKey, game);
             }
+
             return game;
         }
+
         public void ResetGame()
         {
             var context = _httpContextAccessor.HttpContext!;
             var sessionId = context.Session.Id;
             var cacheKey = $"game-{sessionId}";
+
             var newGame = new WordleGame(LoadWords());
             _cache.Set(cacheKey, newGame);
         }
-
-
     }
 }

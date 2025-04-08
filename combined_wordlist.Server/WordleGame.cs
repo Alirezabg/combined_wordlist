@@ -33,18 +33,29 @@
 
     private string GetHint(string guess)
     {
+        bool[] used = new bool[WordToGuess.Length];
         char[] result = new char[guess.Length];
         for (int i = 0; i < guess.Length; i++)
         {
             if (guess[i] == WordToGuess[i])
+            {
                 result[i] = 'G';
-            else if (WordToGuess.Contains(guess[i]))
-
-                result[i] = 'Y';
-            else
-                result[i] = 'B';
+                used[i] = true;
+            }
         }
-
+        for (int i = 0; i < guess.Length; i++)
+        {
+            if (result[i] == 'G') continue;
+            if (WordToGuess.Contains(guess[i]) && !used[WordToGuess.IndexOf(guess[i])])
+            {
+                result[i] = 'Y';
+                used[WordToGuess.IndexOf(guess[i])] = true;
+            }
+            else
+            {
+                result[i] = 'B';
+            }
+        }
         return new string(result);
     }
 

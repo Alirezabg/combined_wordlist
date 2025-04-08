@@ -16,7 +16,7 @@ namespace combined_wordlist.Server.Services
             _cache = cache;
         }
 
-        public List<string> LoadWords()
+        protected virtual List<string> LoadWords()
         {
             if (_wordsCache == null)
             {

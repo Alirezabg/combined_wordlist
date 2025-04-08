@@ -20,55 +20,46 @@ namespace CombinedWordlist.Server.Tests
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
             _httpContext = new DefaultHttpContext();
 
-           
             _httpContextAccessorMock.Setup(_ => _.HttpContext).Returns(_httpContext);
 
-            
             var sessionMock = new Mock<ISession>();
-            sessionMock.Setup(x => x.Set(It.IsAny<string>(), It.IsAny<byte[]>()))
-                       .Verifiable();
-            sessionMock.Setup(x => x.Get(It.IsAny<string>())).Returns((byte[]?)null);
+            sessionMock.Setup(x => x.Set(It.IsAny<string>(), It.IsAny<byte[]>())).Verifiable();
+            sessionMock.Setup(x => x.TryGetValue(It.IsAny<string>(), out It.Ref<byte[]?>.IsAny)).Returns(false);
+            sessionMock.SetupGet(x => x.Id).Returns("test-session-id");
 
             _httpContext.Session = sessionMock.Object;
 
-            _service = new WordleService(_httpContextAccessorMock.Object, _memoryCache);
+            _service = new FakeWordleService(_httpContextAccessorMock.Object, _memoryCache); 
         }
 
-        //[Fact]
-        //public void GetGame_Should_Create_New_Game()
-        //{
-        //    // Act
-        //    var game = _service.GetGame();
+        [Fact]
+        public void GetGame_Should_Create_New_Game()
+        {
+            var game = _service.GetGame();
 
-        //    // Assert
-        //    Assert.NotNull(game);
-        //    Assert.IsType<WordleGame>(game);
-        //    Assert.Equal(5, game.WordToGuess.Length); 
-        //}
+            Assert.NotNull(game);
+            Assert.IsType<WordleGame>(game);
+            Assert.Equal(5, game.WordToGuess.Length); 
+        }
 
-        //[Fact]
-        //public void GetGame_Should_Return_Same_Game_From_Cache()
-        //{
-        //    // Act
-        //    var firstGame = _service.GetGame();
-        //    var secondGame = _service.GetGame();
+        [Fact]
+        public void GetGame_Should_Return_Same_Game_From_Cache()
+        {
+            var firstGame = _service.GetGame();
+            var secondGame = _service.GetGame();
 
-        //    // Assert
-        //    Assert.Same(firstGame, secondGame); 
-        //}
+            Assert.Same(firstGame, secondGame);
+        }
 
-        //[Fact]
-        //public void ResetGame_Should_Create_Different_Game()
-        //{
-        //    // Arrange
-        //    var originalGame = _service.GetGame();
+        [Fact]
+        public void ResetGame_Should_Create_Different_Game()
+        {
+            var originalGame = _service.GetGame();
 
-        //    // Act
-        //    _service.ResetGame();
-        //    var newGame = _service.GetGame();
+            _service.ResetGame();
+            var newGame = _service.GetGame();
 
-        //    // Assert
-        //    Assert.NotSame(originalGame, newGame); 
-        //}
+            Assert.NotSame(originalGame, newGame);
+        }
     }
 }

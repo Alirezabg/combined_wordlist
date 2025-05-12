@@ -1,17 +1,24 @@
-﻿public class WordleGame
+﻿using combined_wordlist.Server.Data.Enum;
+using combined_wordlist.Server.Services;
+
+public class GuessResult
+{
+    public required StatusCode Status { get; init; }
+    public required LetterClue Clue { get; init; }
+}
+public class WordleGame
 {
     public string WordToGuess { get; set; } = string.Empty;
     public int MaxAttempts { get; set; } = 6;
     public int Attempts { get; set; }
-    public HashSet<string> ValidWords { get; set; } = new();
+    private readonly WordSource _wordSource;
 
     public WordleGame() { }
 
-    public WordleGame(IEnumerable<string> validWords)
+    public WordleGame(WordSource wordSource)
     {
-        ValidWords = new HashSet<string>(validWords);
-        var random = new Random();
-        WordToGuess = ValidWords.ElementAt(random.Next(ValidWords.Count));
+        _wordSource = wordSource;
+        WordToGuess = _wordSource.GetRandomWord();
         Attempts = 0;
     }
 
@@ -19,14 +26,14 @@
     {
         if (guess.Length != WordToGuess.Length)
             return "Incorrect word length!";
-        if (!ValidWords.Contains(guess))
+        if (!_wordSource.IsValidWord(guess))
             return "Invalid word!";
 
 
         Attempts++;
 
         if (guess == WordToGuess)
-            return "Correct! You win!";
+            return "GGGGG";
 
         return GetHint(guess);
     }

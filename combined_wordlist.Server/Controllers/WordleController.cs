@@ -13,19 +13,6 @@ public class WordleController : ControllerBase
         _wordleService = wordleService;
     }
 
-    private static List<string> LoadWords()
-    {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "words.txt");
-
-        return System.IO.File.ReadAllLines(filePath).
-            Where(word => word.Length ==5).
-            Select(word => word.ToLower() ).
-            Distinct().
-            ToList();
-
-    }
-
-
     [HttpPost("guess")]
     public IActionResult MakeGuess([FromBody] string guess)
     {
@@ -33,9 +20,6 @@ public class WordleController : ControllerBase
         var response = game.CheckGuess(guess);
         return Ok(new { response, gameOver = game.IsGameOver() });
     }
-
-
-
 
     [HttpGet("reset")]
     public IActionResult ResetGame()

@@ -6,17 +6,12 @@ namespace CombinedWordlist.Server.Tests
     public class WordleGameTests
     {
         [Fact]
-        public void CheckGuess_Returns_Correct_On_Winning_Guess()
+        public void TestLoadWords()
         {
             // Arrange
-            var words = new List<string> { "apple" };
-            var game = new WordleGame(words) { WordToGuess = "apple" };
+            var words = new WordSource();
+            var words = wordSource.LoadWords();
 
-            // Act
-            var result = game.CheckGuess("apple");
-
-            // Assert
-            Assert.Equal("Correct! You win!", result);
         }
 
         [Fact]

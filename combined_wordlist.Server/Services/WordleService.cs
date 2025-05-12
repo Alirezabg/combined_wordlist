@@ -8,26 +8,14 @@ namespace combined_wordlist.Server.Services
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IMemoryCache _cache;
-        private static List<string>? _wordsCache;
+        private readonly WordSource _wordSource;
 
-        public WordleService(IHttpContextAccessor httpContextAccessor, IMemoryCache cache)
+
+        public WordleService(IHttpContextAccessor httpContextAccessor, IMemoryCache cache, WordSource wordSource)
         {
             _httpContextAccessor = httpContextAccessor;
             _cache = cache;
-        }
-
-        protected virtual List<string> LoadWords()
-        {
-            if (_wordsCache == null)
-            {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Data", "words.txt");
-                _wordsCache = System.IO.File.ReadAllLines(filePath)
-                    .Where(word => word.Length == 5)
-                    .Select(word => word.ToLower())
-                    .Distinct()
-                    .ToList();
-            }
-            return _wordsCache;
+            _wordSource = wordSource;
         }
 
         public WordleGame GetGame()
@@ -40,7 +28,7 @@ namespace combined_wordlist.Server.Services
 
             if (!_cache.TryGetValue(cacheKey, out WordleGame game))
             {
-                game = new WordleGame(LoadWords());
+                game = new WordleGame(_wordSource);
                 _cache.Set(cacheKey, game);
             }
 
@@ -53,7 +41,7 @@ namespace combined_wordlist.Server.Services
             var sessionId = context.Session.Id;
             var cacheKey = $"game-{sessionId}";
 
-            var newGame = new WordleGame(LoadWords());
+            var newGame = new WordleGame(_wordSource);
             _cache.Set(cacheKey, newGame);
         }
     }

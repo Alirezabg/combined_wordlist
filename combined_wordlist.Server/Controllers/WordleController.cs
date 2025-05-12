@@ -67,12 +67,12 @@ public class WordleController : ControllerBase
     {
         var originalGame = _wordleService.GetGame();
 
-        var solverGame = new WordleGame(originalGame.ValidWords)
+        var solverGame = new WordleGame()
         {
             WordToGuess = originalGame.WordToGuess
         };
 
-        var possibleWords = new List<string>(solverGame.ValidWords);
+        var possibleWords = new List<string>();
         var attempts = new List<object>();
 
         while (!solverGame.IsGameOver())

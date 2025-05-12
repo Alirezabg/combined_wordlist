@@ -29,7 +29,7 @@ namespace CombinedWordlist.Server.Tests
 
             _httpContext.Session = sessionMock.Object;
 
-            _service = new FakeWordleService(_httpContextAccessorMock.Object, _memoryCache); 
+            
         }
 
         [Fact]
